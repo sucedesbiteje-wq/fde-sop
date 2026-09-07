@@ -2879,7 +2879,7 @@ window.fpvOpen=function(f){
 .sop-mmd .mm-t{font-size:14px;font-weight:500;color:#2C2C2A;margin:4px 0 2px 4px}
 .sop-mmd .mm-d{font-size:11.5px;color:var(--muted);margin:0 0 10px 4px}
 .sop-mmd .mm-box{background:#fff;border:1px solid #dbe2ec;border-radius:12px;padding:12px 8px;overflow-x:auto}
-.sop-mmd svg{max-width:100%;height:auto}
+.sop-mmd .mm-box svg{display:block;margin:0 auto}
 .sop-mmd .node{opacity:0;animation:mmnode .5s ease both;cursor:pointer}
 .sop-mmd .edgePath,.sop-mmd .edgeLabels{opacity:0;animation:mmnode .4s ease both}
 .sop-mmd .edgePath path{stroke-dasharray:8 6!important;animation:mmdash 1s linear infinite!important}
@@ -2926,7 +2926,7 @@ function loadMermaid(cb){
   s.src=MMURL;
   s.onload=function(){
     window.mermaid.initialize({startOnLoad:false,securityLevel:"loose",theme:"base",
-      flowchart:{htmlLabels:true,curve:"basis",nodeSpacing:36,rankSpacing:44},
+      flowchart:{htmlLabels:false,curve:"basis",nodeSpacing:40,rankSpacing:52},
       themeVariables:{primaryColor:"#E6F1FB",primaryBorderColor:"#185FA5",primaryTextColor:"#2C2C2A",lineColor:"#64748b",fontSize:"13px"}});
     mmReady=true;mmLoading=false;
     mmWaiters.forEach(function(w){w()});
@@ -2950,7 +2950,7 @@ function mmCodeSafe(f,fi){
     var id="N"+fi+"_"+i;
     var isDec=/审核$|判断|可行/.test(o.st.t)&&i<seq.length-1;
     meta[id]={t:o.st.t,dep:o.dep,ds:o.st.ds,dec:isDec};
-    var label=esc(o.st.t)+"<br/><span style='font-size:10px'>"+esc("部门 · "+o.dep)+"</span>";
+    var label=esc(o.st.t)+"<br/>"+esc("部门 · "+o.dep);
     if(isDec){
       L.push(id+'{"'+label+'"}');
       var ex="X"+fi+"_"+ec;ec++;
