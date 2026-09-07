@@ -1841,9 +1841,9 @@ function sopViewHTML(){
   var total=0;SOP_BP.flows.forEach(function(f){f.phases.forEach(function(p){total+=p.steps.length})});
   var h='<section class="view" id="view-sop">';
   h+='<div class="card"><h2 class="sec"><span class="bar-accent"></span>公司 SOP · 管理系统数据体系流程</h2>';
-  h+='<p class="lead">采用 GitHub 同款 Mermaid 流程图引擎自动布局：菱形为判定分支（是/否双路径），矩形为作业步骤（含责任部门）。进入板块后流程图<b>逐节点浮现生长</b>，连线以<b>流动虚线</b>指示行进方向；<b>点击任意节点查看作业简介</b>。</p>';
+  h+='<p class="lead">业务流程图 · 纵向流转范式：圆角胶囊为开始 / 结束，卡片为作业步骤（含责任部门徽章），判定环节明确展示「是 → 继续 / 否 → 结束」双路径。全部节点与箭头<b>按流程顺序逐个生长</b>，箭头带<b>流动光效</b>；<b>点击任意节点查看作业简介</b>。</p>';
   h+='<div class="mod-stats">'+SOP_BP.flows.length+' 条业务流程　·　9 个业务阶段　·　'+total+' 个作业环节　·　6 个协作部门</div>';
-  h+='<div class="sop-ctrl"><button class="sop-play" id="sopReplay">↻ 重播生长动画</button><span class="sop-fsep"></span><span class="sop-flab">菱形=判定 · 矩形=步骤 · 点击节点看简介</span></div></div>';
+  h+='<div class="sop-ctrl"><button class="sop-play" id="sopReplay">↻ 重播生长动画</button><span class="sop-fsep"></span><span class="sop-flab">点击任意节点看简介 · 判定环节展示是/否双路径</span></div></div>';
   h+='<div class="card nopad"><div class="sl-wrap"><div id="bpHost"></div></div></div>';
   h+='<div class="sop-legend"><span class="lg"><i class="sop-lgn"></i>业务阶段卡片（内含作业环节）</span><span class="lg"><i class="sop-lgd"></i>光点 = 阶段流转方向</span><span class="lg">💡 阶段头部为责任部门 · Esc 关闭详情</span></div>';
   h+='<div id="sopOv"><div class="sop-ovbox"><div class="sop-ovhead"><span class="sop-ovchip" id="sopOvLane"></span><b id="sopOvTitle"></b><button id="sopOvClose">✕</button></div>';
@@ -2874,19 +2874,39 @@ window.fpvOpen=function(f){
 </script>
 
 <style>
-/* ================= 公司 SOP Mermaid 业务流程图（v8b） ================= */
-.sop-mmd{margin-bottom:26px}
-.sop-mmd .mm-t{font-size:14px;font-weight:500;color:#2C2C2A;margin:4px 0 2px 4px}
-.sop-mmd .mm-d{font-size:11.5px;color:var(--muted);margin:0 0 10px 4px}
-.sop-mmd .mm-box{background:#fff;border:1px solid #dbe2ec;border-radius:12px;padding:12px 8px;overflow-x:auto}
-.sop-mmd .mm-box svg{display:block;margin:0 auto}
-.sop-mmd .node{opacity:0;animation:mmnode .5s ease both;cursor:pointer}
-.sop-mmd .edgePath,.sop-mmd .edgeLabels{opacity:0;animation:mmnode .4s ease both}
-.sop-mmd .edgePath path{stroke-dasharray:8 6!important;animation:mmdash 1s linear infinite!important}
-.sop-mmd .node:hover rect,.sop-mmd .node:hover polygon{filter:brightness(.95)}
+/* ================= 公司 SOP 纵向业务流程链（v9 · 纯 HTML） ================= */
+.fc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:22px;padding:16px}
+.fc-col{background:var(--bg,#fff);border:1px solid #dbe2ec;border-radius:14px;padding:16px 14px 20px}
+.fc-coltitle{font-size:14px;font-weight:500;color:var(--c);margin:0 4px 2px}
+.fc-coldesc{font-size:11.5px;color:var(--muted);margin:0 4px 14px}
+.fc-chain{display:flex;flex-direction:column;align-items:center}
+.fc-node{width:100%;max-width:400px;background:#fff;border:1px solid #d7dee8;border-radius:10px;
+  padding:10px 13px;cursor:pointer;transition:transform .15s,box-shadow .15s,opacity .3s;opacity:0;position:relative}
+.fc-col.enter .fc-node,.fc-col.enter .fc-arrow{animation:mmnode .45s ease both}
 @keyframes mmnode{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@keyframes mmdash{to{stroke-dashoffset:-28}}
-.bp-fallback{padding:26px;text-align:center;color:#8c2118;font-size:13px;background:#fdf2f2;border-radius:10px;margin:10px}
+.fc-node:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(15,22,34,.14)}
+.fc-node.spot{box-shadow:0 0 0 2px var(--c),0 8px 20px rgba(37,99,235,.22)}
+.fc-pill{max-width:230px;text-align:center;border-radius:22px;font-weight:500;font-size:13px}
+.fc-pill.start{background:var(--bg);border-color:var(--c);color:var(--c)}
+.fc-pill.end{background:#E1F5EE;border-color:#0F6E56;color:#04342C}
+.fc-proc{border-left:4px solid var(--c)}
+.fc-proc .fc-t{font-size:13px;font-weight:500;color:#1e293b;line-height:1.5}
+.fc-dep{display:inline-block;margin-top:6px;font-size:10.5px;font-weight:600;border-radius:5px;padding:1px 8px;
+  background:color-mix(in srgb,var(--dc) 12%,#fff);color:var(--dc);border:1px solid color-mix(in srgb,var(--dc) 30%,#fff)}
+.fc-dec{background:#FFFDF5;border:1.5px solid #BA7517;border-radius:12px}
+.fc-dec .fc-q{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:500;color:#633806}
+.fc-dec .fc-dia{flex:none;width:15px;height:15px;background:#FFF7E8;border:1.5px solid #BA7517;transform:rotate(45deg);border-radius:3px}
+.fc-branches{display:flex;gap:8px;margin-top:9px;flex-wrap:wrap}
+.fc-branch{font-size:11px;font-weight:600;border-radius:6px;padding:3px 10px}
+.fc-branch.yes{color:#166534;background:#f0fdf4;border:1px solid #bbf7d0}
+.fc-branch.no{color:#8c2118;background:#fef2f2;border:1px solid #fecaca;cursor:pointer}
+.fc-branch.no:hover{background:#fee2e2}
+.fc-arrow{display:flex;flex-direction:column;align-items:center;height:34px;justify-content:center;opacity:0}
+.fc-arrow .ln{width:2.5px;flex:1;border-radius:2px;
+  background:repeating-linear-gradient(180deg,var(--c) 0 6px,transparent 6px 11px);
+  animation:fcflowy .9s linear infinite}
+@keyframes fcflowy{to{background-position:0 11px}}
+.fc-arrow .hd{width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid var(--c)}
 .sop-ctrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
 .sop-play{background:#2563eb;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;transition:.18s}
 .sop-play:hover{background:#1d4ed8;transform:translateY(-1px)}
@@ -2894,8 +2914,9 @@ window.fpvOpen=function(f){
 .sop-flab{font-size:12px;color:var(--muted)}
 .sop-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:11.5px;color:var(--muted);align-items:center;padding:0 6px 8px}
 .sop-legend .lg{display:flex;align-items:center;gap:6px}
-.sop-legend .fc-lgd{width:13px;height:13px;background:#FFF7E8;border:1px solid #BA7517;transform:rotate(45deg) scale(.8);display:inline-block}
-.sop-legend .sop-lgn{width:20px;height:12px;border-radius:4px;background:#fff;border:1px solid #c8d2de}
+.sop-legend .fc-lgp{width:22px;height:12px;border-radius:7px;background:#E6F1FB;border:1px solid #185FA5;display:inline-block}
+.sop-legend .sop-lgn{width:20px;height:12px;border-radius:4px;background:#fff;border:1px solid #d7dee8;border-left:3px solid #185FA5}
+.sop-legend .fc-lgd{width:12px;height:12px;background:#FFF7E8;border:1.5px solid #BA7517;transform:rotate(45deg) scale(.8);border-radius:2px;display:inline-block}
 .sop-legend .sop-lgd{width:10px;height:10px;border-radius:50%;background:#f59e0b}
 #sopOv{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;z-index:99998;padding:24px}
 #sopOv.on{display:flex;animation:sopei .18s ease}
@@ -2909,125 +2930,108 @@ window.fpvOpen=function(f){
 .sop-ovmeta{display:flex;gap:8px;flex-wrap:wrap;padding:10px 18px 0}
 .sop-ovmeta span{font-size:11.5px;font-weight:600;color:#334155;background:#f1f5f9;border-radius:6px;padding:3px 10px}
 .sop-ovbody{padding:12px 18px 16px;font-size:13px;line-height:1.85;color:#334155;overflow:auto}
-@media (prefers-reduced-motion: reduce){.sop-mmd .node,.sop-mmd .edgePath,.sop-mmd .edgeLabels{animation:none!important;opacity:1!important}.sop-mmd .edgePath path{animation:none!important}}
+@media (prefers-reduced-motion: reduce){.fc-node,.fc-arrow{animation:none!important;opacity:1!important}.fc-arrow .ln{animation:none!important}}
 </style>
 <script>
-/* ================= 公司 SOP Mermaid 流程图运行时 v8b ================= */
+/* ================= 公司 SOP 纵向业务流程链运行时 v9（纯 HTML，零 SVG 依赖） ================= */
 (function(){
-var MMURL="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js";
-var mmLoading=false,mmReady=false,mmWaiters=[];
-function loadMermaid(cb){
-  if(mmReady){cb();return}
-  mmWaiters.push(cb);
-  if(mmLoading)return;
-  mmLoading=true;
-  var host=document.getElementById("bpHost");if(!host)return;
-  var s=document.createElement("script");
-  s.src=MMURL;
-  s.onload=function(){
-    window.mermaid.initialize({startOnLoad:false,securityLevel:"loose",theme:"base",
-      flowchart:{htmlLabels:false,curve:"basis",nodeSpacing:40,rankSpacing:52},
-      themeVariables:{primaryColor:"#E6F1FB",primaryBorderColor:"#185FA5",primaryTextColor:"#2C2C2A",lineColor:"#64748b",fontSize:"13px"}});
-    mmReady=true;mmLoading=false;
-    mmWaiters.forEach(function(w){w()});
-  };
-  s.onerror=function(){
-    mmLoading=false;mmWaiters=[];
-    host.innerHTML='<div class="bp-fallback">Mermaid 渲染引擎加载失败（需要联网加载一次组件）。请检查网络后点击「↻ 重播生长动画」重试；页面其余功能不受影响。</div>';
-  };
-  document.head.appendChild(s);
-}
-function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
-function mmCodeSafe(f,fi){
-  var L=["flowchart TD"];
-  var meta={};
-  var seq=[];
-  f.phases.forEach(function(p){p.steps.forEach(function(st){seq.push({st:st,dep:p.dep.join("/")})})});
-  L.push('S0(["开始"])');
-  meta.S0={t:"开始",dep:"",ds:"流程起点。",dec:false};
-  var prev="S0",prevDec=false,ec=0;
-  seq.forEach(function(o,i){
-    var id="N"+fi+"_"+i;
-    var isDec=/审核$|判断|可行/.test(o.st.t)&&i<seq.length-1;
-    meta[id]={t:o.st.t,dep:o.dep,ds:o.st.ds,dec:isDec};
-    var label=esc(o.st.t)+"<br/>"+esc("部门 · "+o.dep);
-    if(isDec){
-      L.push(id+'{"'+label+'"}');
-      var ex="X"+fi+"_"+ec;ec++;
-      meta[ex]={t:"结束",dep:"",ds:"判定不通过时退出流程。",dec:false};
-      L.push(ex+'(("结束"))');
-      L.push(id+" -- 否 --> "+ex);
-      L.push(prev+(prevDec?" -- 是 --> ":" --> ")+id);
-      prev=id;prevDec=true;
-    }else{
-      L.push(id+'["'+label+'"]');
-      L.push(prev+(prevDec?" -- 是 --> ":" --> ")+id);
-      prev=id;prevDec=false;
-    }
-  });
-  var end="E"+fi;
-  meta[end]={t:"完成",dep:"",ds:"本流程完成。",dec:false};
-  L.push(end+'(["完成"])');
-  L.push(prev+(prevDec?" -- 是 --> ":" --> ")+end);
-  return {code:L.join("\n"),meta:meta};
-}
-var META={};
-function renderAll(){
+var BP_DEPT={"开发部":"#534AB7","采购部":"#B45309","设计部":"#0F6E56","运营中心":"#185FA5","物流部":"#993C1D","客服部":"#A32D2D"};
+function isDec(t){return /审核$|判断|可行/.test(t)}
+function build(){
   var host=document.getElementById("bpHost");if(!host)return;
   host.innerHTML="";
-  META={};
+  var META={};
+  var gi=0;
   SOP_BP.flows.forEach(function(f,fi){
-    var wrap=document.createElement("div");wrap.className="sop-mmd";
-    var t=document.createElement("p");t.className="mm-t";t.textContent=f.t;
-    var d=document.createElement("p");d.className="mm-d";d.textContent=f.ds;
-    var box=document.createElement("div");box.className="mm-box";
-    var inner=document.createElement("div");
-    inner.innerHTML='<div style="padding:20px;text-align:center;color:#888780;font-size:12px">流程图绘制中…</div>';
-    box.appendChild(inner);wrap.appendChild(t);wrap.appendChild(d);wrap.appendChild(box);
-    host.appendChild(wrap);
-    var built=mmCodeSafe(f,fi);
-    Object.assign(META,built.meta);
-    var gid="mmdg"+fi+"_"+Date.now();
-    window.mermaid.render(gid,built.code).then(function(res){
-      inner.innerHTML=res.svg;
-      var svg=inner.querySelector("svg");
-      var items=svg.querySelectorAll("g.node, g.edgePath, g.edgeLabel");
-      items.forEach(function(n,i){n.style.animationDelay=(i*80)+"ms"});
-      svg.querySelectorAll("g.node").forEach(function(n){
-        n.addEventListener("click",function(){
-          var m=META[n.getAttribute("data-id")||""];
-          if(!m)return;
-          var chip=document.getElementById("sopOvLane");
-          chip.textContent=m.dec?"判定节点":"作业环节";chip.style.background="#185FA5";
-          document.getElementById("sopOvTitle").textContent=m.t;
-          document.getElementById("sopOvPhase").textContent=m.dep?("责任部门 · "+m.dep):"流程节点";
-          var mv=document.getElementById("sopOvMv");mv.style.display="none";
-          document.getElementById("sopOvBody").textContent=m.ds||"（暂无作业简介）";
-          document.getElementById("sopOv").classList.add("on");
-        });
-      });
-    }).catch(function(err){
-      inner.innerHTML='<div class="bp-fallback">流程图渲染失败：'+String(err&&err.message||err).slice(0,140)+'</div>';
+    var col=document.createElement("div");col.className="fc-col";
+    col.style.setProperty("--c",f.c);col.style.setProperty("--bg",f.bg);
+    var tt=document.createElement("p");tt.className="fc-coltitle";tt.textContent=f.t;
+    var dd=document.createElement("p");dd.className="fc-coldesc";dd.textContent=f.ds;
+    var chain=document.createElement("div");chain.className="fc-chain";
+    col.appendChild(tt);col.appendChild(dd);col.appendChild(chain);
+    function node(el,d){el.style.animationDelay=d+"ms";chain.appendChild(el);gi++;return d}
+    /* 开始 */
+    var st=document.createElement("div");
+    st.className="fc-node fc-pill start";st.textContent="开始";
+    node(st,gi*90);
+    var prevDec=false;
+    var seq=[];
+    f.phases.forEach(function(p){p.steps.forEach(function(s){seq.push({s:s,p:p})})});
+    seq.forEach(function(o,i){
+      var id=fi+"-"+i;
+      META[id]={t:o.s.t,dep:o.p.dep.join("、"),ds:o.s.ds,phase:o.p.t,dec:isDec(o.s.t),fi:fi,si:i};
+      /* 箭头 */
+      var ar=document.createElement("div");ar.className="fc-arrow";
+      ar.style.setProperty("--c",f.c);
+      ar.innerHTML='<i class="ln"></i><i class="hd"></i>';
+      node(ar,gi*90);
+      var el;
+      if(isDec(o.s.t)){
+        el=document.createElement("div");
+        el.className="fc-node fc-dec";el.dataset.sopn=id;
+        var q=document.createElement("div");q.className="fc-q";
+        var dia=document.createElement("i");dia.className="fc-dia";
+        var qt=document.createElement("span");qt.textContent=o.s.t;
+        q.appendChild(dia);q.appendChild(qt);
+        var br=document.createElement("div");br.className="fc-branches";
+        br.innerHTML='<span class="yes">是 → 向下继续</span><span class="no">否 → 流程结束</span>';
+        el.appendChild(q);el.appendChild(br);
+      }else{
+        el=document.createElement("div");
+        el.className="fc-node fc-proc";el.dataset.sopn=id;
+        var t1=document.createElement("div");t1.className="fc-t";t1.textContent=o.s.t;
+        var d1=document.createElement("span");d1.className="fc-dep";
+        d1.style.setProperty("--dc",BP_DEPT[o.p.dep[0]]||"#64748b");
+        d1.textContent="部门 · "+o.p.dep.join("、");
+        el.appendChild(t1);el.appendChild(d1);
+      }
+      node(el,gi*90);
+      prevDec=isDec(o.s.t);
     });
+    /* 结束 */
+    var ar=document.createElement("div");ar.className="fc-arrow";
+    ar.style.setProperty("--c",f.c);
+    ar.innerHTML='<i class="ln"></i><i class="hd"></i>';
+    node(ar,gi*90);
+    var end=document.createElement("div");
+    end.className="fc-node fc-pill end";end.textContent="完成 · 流程结束";
+    node(end,gi*90);
+    col.appendChild(chain);
+    host.appendChild(col);
   });
+  host.classList.remove("enter");void host.offsetWidth;host.classList.add("enter");
+  window.__SOP_META=META;
 }
-function sopActivate(){
-  loadMermaid(renderAll);
-}
+function sopActivate(){build()}
 function sopStop(){var ov=document.getElementById("sopOv");if(ov)ov.classList.remove("on")}
+function openDetail(id){
+  var m=window.__SOP_META&&window.__SOP_META[id];if(!m)return;
+  var f=SOP_BP.flows[m.fi];
+  var chip=document.getElementById("sopOvLane");
+  chip.textContent=f.t+(m.dec?" · 判定环节":" · 作业环节");chip.style.background=f.c;
+  document.getElementById("sopOvTitle").textContent=m.t;
+  document.getElementById("sopOvPhase").textContent="阶段 · "+m.phase;
+  var mv=document.getElementById("sopOvMv");
+  mv.style.display="";mv.textContent="责任部门 · "+m.dep;
+  document.getElementById("sopOvBody").textContent=m.ds||"（暂无作业简介）";
+  document.getElementById("sopOv").classList.add("on");
+}
 function closeDetail(){document.getElementById("sopOv").classList.remove("on")}
 document.addEventListener("click",function(e){
   var ov=document.getElementById("sopOv");if(!ov)return;
   if(e.target.id==="sopReplay"){sopActivate();return}
   if(e.target.id==="sopOvClose"){closeDetail();return}
   if(e.target===ov){closeDetail();return}
+  var n=e.target.closest("[data-sopn]");
+  if(n){openDetail(n.dataset.sopn);return}
 });
 document.addEventListener("keydown",function(e){
   if(e.key==="Escape")closeDetail();
 });
-window.sopActivate=sopActivate;window.sopStop=sopStop;window.sopRedraw=sopActivate;
+window.sopActivate=sopActivate;window.sopStop=sopStop;window.sopRedraw=build;
 })();
 </script>
+
 
 
 
